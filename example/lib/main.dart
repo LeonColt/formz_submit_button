@@ -1,14 +1,15 @@
-import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:formz/formz.dart';
+import 'package:formz_submit_button/formz_submit_button.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MaterialApp(
       title: 'Rounded Loading Button Demo',
       theme: ThemeData(
@@ -27,102 +28,133 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final RoundedLoadingButtonController _btnController1 =
-      RoundedLoadingButtonController();
+  FormzSubmissionStatus btn1Status = FormzSubmissionStatus.initial;
+  FormzSubmissionStatus btn2Status = FormzSubmissionStatus.initial;
 
-  final RoundedLoadingButtonController _btnController2 =
-      RoundedLoadingButtonController();
+  void _doSomethingForBtn1() async {
+    print("_doSomethingForBtn1");
+    setState(() {
+      btn1Status = FormzSubmissionStatus.inProgress;
+    });
+    await Future.delayed(const Duration(seconds: 10));
+    if (Random.secure().nextBool()) {
+      setState(() {
+        btn1Status = FormzSubmissionStatus.success;
+      });
+    } else {
+      setState(() {
+        btn1Status = FormzSubmissionStatus.failure;
+      });
+    }
+    await Future.delayed(const Duration(seconds: 3));
+    setState(() {
+      btn1Status = FormzSubmissionStatus.initial;
+    });
+  }
 
-  void _doSomething(RoundedLoadingButtonController controller) async {
-    Timer(Duration(seconds: 10), () {
-      controller.success();
+  void _doSomethingForBtn2() async {
+    setState(() {
+      btn2Status = FormzSubmissionStatus.inProgress;
+    });
+    await Future.delayed(const Duration(seconds: 5));
+    if (Random.secure().nextBool()) {
+      setState(() {
+        btn2Status = FormzSubmissionStatus.success;
+      });
+    }
+    setState(() {
+      btn2Status = FormzSubmissionStatus.failure;
+    });
+    await Future.delayed(const Duration(seconds: 3));
+    setState(() {
+      btn2Status = FormzSubmissionStatus.initial;
     });
   }
 
   @override
-  void initState() { 
-    super.initState();
-    _btnController1.stateStream.listen((value) {
-      print(value);
-
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Rounded Loading Button Demo'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RoundedLoadingButton(
-                successIcon: Icons.cloud,
-                failedIcon: Icons.cottage,
-                child: Text('Tap me!', style: TextStyle(color: Colors.white)),
-                controller: _btnController1,
-                onPressed: () => _doSomething(_btnController1),
+      appBar: AppBar(
+        title: Text('Rounded Loading Button Demo'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            FormzSubmitButton(
+              status: btn1Status,
+              successIcon: Icons.cloud,
+              failedIcon: Icons.cottage,
+              child: Text('Tap me!', style: TextStyle(color: Colors.white)),
+              onPressed: _doSomethingForBtn1,
+            ),
+            SizedBox(height: 50),
+            FormzSubmitButton(
+              status: btn2Status,
+              color: Colors.amber,
+              successColor: Colors.amber,
+              valueColor: Colors.black,
+              borderRadius: 10,
+              child: Text(
+                'Tap me i have a huge text',
+                style: TextStyle(color: Colors.white),
               ),
-              SizedBox(
-                height: 50,
-              ),
-              RoundedLoadingButton(
-                color: Colors.amber,
-                successColor: Colors.amber,
-                controller: _btnController2,
-                onPressed: () => _doSomething(_btnController2),
-                valueColor: Colors.black,
-                borderRadius: 10,
-                child: Text('''
-Tap me i have a huge text''', style: TextStyle(color: Colors.white)),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              OutlinedButton(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30))),
+              onPressed: _doSomethingForBtn2,
+            ),
+            SizedBox(height: 50),
+            OutlinedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  onPressed: () {
-                    _btnController1.reset();
-                    _btnController2.reset();
-                  },
-                  child: Text('Reset')),
-              SizedBox(
-                height: 20,
-              ),
-              OutlinedButton(
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30))),
                 ),
-                onPressed: () {
-                  _btnController1.error();
-                  _btnController2.error();
-                },
-                child: Text('Error'),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              OutlinedButton(
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30))),
+              onPressed: () {
+                setState(() {
+                  btn1Status = FormzSubmissionStatus.initial;
+                  btn2Status = FormzSubmissionStatus.initial;
+                });
+              },
+              child: Text('Reset'),
+            ),
+            SizedBox(height: 20),
+            OutlinedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-                onPressed: () {
-                  // _btnController1.success();
-                  // _btnController2.success();
-                  // _btnController1
-                  print(_btnController1.currentState);
-                },
-                child: Text('Success'),
-              )
-            ],
-          ),
-        ));
+              ),
+              onPressed: () {
+                setState(() {
+                  btn1Status = FormzSubmissionStatus.failure;
+                  btn2Status = FormzSubmissionStatus.failure;
+                });
+              },
+              child: Text('Error'),
+            ),
+            SizedBox(height: 20),
+            OutlinedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  btn1Status = FormzSubmissionStatus.success;
+                  btn2Status = FormzSubmissionStatus.success;
+                });
+              },
+              child: Text('Success'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
