@@ -1,6 +1,6 @@
 name: formz_submit_button
 description: A simple implementation of an animated loading button widget for Formz
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/LeonColt/formz_submit_button
 
 environment:
