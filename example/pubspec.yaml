@@ -22,7 +22,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  formz: ^0.7.0
+  formz: any
 
   formz_submit_button:
     path: ../
